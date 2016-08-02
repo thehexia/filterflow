@@ -1,6 +1,4 @@
-set(CMAKE_CXX_FLAGS "-Wall -std=c++1y -fPIC")
-
-add_library(steve-helper STATIC
+add_library(runtime SHARED
   action.cpp
   binding.cpp
   buffer.cpp
@@ -15,3 +13,5 @@ add_library(steve-helper STATIC
   table.cpp
   flow.cpp
 )
+
+target_link_libraries(runtime farmhash pcap dl)

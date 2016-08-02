@@ -38,11 +38,7 @@ struct Packet
     : Packet(buf, N)
   { }
 
-  ~Packet()
-  {
-    if (buf_)
-      delete [] buf_;
-  }
+  ~Packet() { }
 
   // Returns a pointer to the raw buffer.
   Byte const* data() const { return buf_; }

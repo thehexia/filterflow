@@ -21,7 +21,7 @@ endif()
 
 # C/C++ build flags.
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O3")
 
 
 # Require Boost C++ Libraries.
@@ -33,9 +33,9 @@ if(FREEFLOW_USE_PCAP)
   find_package(PCAP REQUIRED)
 endif()
 
-
 # Allow includes to find from headers from this dir.
 include_directories(.)
 
 add_subdirectory(freeflow)
 add_subdirectory(util)
+add_subdirectory(drivers)

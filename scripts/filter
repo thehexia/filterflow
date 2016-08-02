@@ -1,0 +1,1 @@
+../build/drivers/filter-driver ../apps/logging.app ../input/4sics200.pcap $1

@@ -3,9 +3,10 @@
 #include <cstdarg>
 
 #include "system.hpp"
-#include "port_table.hpp"
 #include "application.hpp"
 #include "endian.hpp"
+#include "context.hpp"
+#include "dataplane.hpp"
 
 //////////////////////////////////////////////////////////////////////////
 //                    External Runtime System Calls                     //
@@ -39,9 +40,8 @@ fp_flood(fp::Context* cxt)
 {
   // FIXME: Make a flood port.
   fp::Port* flood = cxt->dataplane()->get_flood_port();
-  fp_context_set_output_port(cxt, flood);
   assert(flood);
-  // flood->send(cxt);
+  cxt->set_output_port(flood->id());;
 }
 
 

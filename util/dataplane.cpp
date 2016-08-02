@@ -12,13 +12,8 @@ namespace fp {
 
 // Data plane ctor.
 Dataplane::Dataplane(std::string const& name, std::string const& app_name)
-  : name_(name), ports_(), portmap_()
+  : name_(name), app_(Application(app_name.c_str())), ports_(),  portmap_()
 {
-  // auto app = module_table.find(app_name);
-  // if (app != module_table.end())
-  //   app_ = app->second;
-  // else
-  //   throw std::string("Unknown application name '" + app_name + "'");
 }
 
 Dataplane::~Dataplane()
@@ -103,32 +98,24 @@ Dataplane::add_reserved_ports()
 void
 Dataplane::up()
 {
-  // if (!app_)
-  //   throw std::string("No applicaiton is installed.");
-  // else if (app_->state() == Application::State::READY) {
-  //   thread_pool.install(app());
-  //   thread_pool.start();
-  // }
-  // else if (app_->state() == Application::State::NEW)
-  //   throw std::string("Data plane has not been configured, unable to start");
+  app_.start(*this);
 }
 
 
 
 // For manually passing in packets to the data plane.
 void
-Dataplane::process(Port* port, Context* cxt)
+Dataplane::process(Context& cxt)
 {
-  // try
-  // {
-  //   app_->lib().exec("process", &cxt);
-  // }
-  // catch (std::exception& e)
-  // {
-  //   // Drop the packet.
-  //   Port* p = get_drop_port();
-  //   p->send(&cxt);
-  // }
+  try
+  {
+    app_.process(cxt);
+  }
+  catch (std::exception& e)
+  {
+    // Drop the packet.
+    // Do nothing.
+  }
 }
 
 
@@ -149,16 +136,7 @@ Dataplane::down()
 void
 Dataplane::configure()
 {
-  // assert(app_);
-  //
-  // if (app_->state() == Application::State::NEW) {
-  //   std::cout << "RUNNING CONFIG\n";
-  //
-  //   app_->lib().exec("load", this);
-  //   app_->state_ = Application::State::READY;
-  // }
-  // else
-  //   throw std::string("Data plane has already been configured.");
+  app_.load(*this);
 }
 
 
@@ -171,8 +149,8 @@ Dataplane::name() const
 
 
 // Gets the data planes application.
-Application*
-Dataplane::app()
+Application const&
+Dataplane::app() const
 {
   return app_;
 }

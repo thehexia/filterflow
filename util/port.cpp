@@ -1,5 +1,4 @@
 #include "port.hpp"
-#include "port_table.hpp"
 
 #include <climits>
 #include <netinet/in.h>
@@ -15,7 +14,7 @@ namespace fp
 
 // Port constructor that sets ID.
 Port::Port(Port::Id id, Port::Label name)
-  : id_(id), name_(name)
+  : id_(id), addr_(nullptr), name_(name), config_()
 { }
 
 

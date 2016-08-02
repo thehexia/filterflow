@@ -1,0 +1,2 @@
+gdb ../build/drivers/filter-driver
+run ../apps/logging.app ../input/4sics200.pcap

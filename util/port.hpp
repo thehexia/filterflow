@@ -74,6 +74,25 @@ public:
 bool operator==(Port*, std::string const&);
 
 
+class Port_reserved : public Port
+{
+public:
+  // Constructors/Destructor.
+  using Port::Port;
+
+  Port_reserved(Port::Id id, std::string const& config, std::string const& name = "")
+    : Port::Port(id, name)
+  { }
+
+  int       open() { return 0; }
+  Context*  recv() { return nullptr; }
+  int       send() { return 0; }
+  void      send(Context*) { }
+  void      close() { }
+  Function  work_fn() { return nullptr; }
+};
+
+
 } // end namespace FP
 
 #endif

@@ -28,7 +28,7 @@ struct Dataplane
   std::vector<Table*> tables_;
 
   // Application.
-  Application* app_;
+  Application app_;
 
   Dataplane(std::string const&, std::string const&);
   ~Dataplane();
@@ -52,10 +52,10 @@ struct Dataplane
   void up();
   void down();
   void configure();
-  void process(Port*, Packet*);
+  void process(Context&);
 
   // Accessors.
-  Application*        app();
+  Application const&  app() const;
   std::string         name() const;
   std::vector<Table*> tables() const;
   Table*              table(int);
