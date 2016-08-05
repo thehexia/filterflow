@@ -4,6 +4,7 @@
 #include <string>
 #include <netinet/in.h>
 
+#include "freeflow/capture.hpp"
 #include "packet.hpp"
 
 
@@ -53,6 +54,7 @@ public:
   virtual Context*  recv() = 0;
   virtual int       send() = 0;
   virtual void      send(Context*);
+  virtual void      send(ff::cap::Packet&);
   virtual void      close() = 0;
   virtual Function  work_fn() = 0;
 

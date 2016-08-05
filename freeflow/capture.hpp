@@ -205,6 +205,39 @@ Stream::get(Packet& p)
 }
 
 
+class Dump_stream
+{
+public:
+  Dump_stream(char const*);
+
+  // Dump a packet into a pcap file.
+  void dump(Packet& p);
+
+  pcap_t* handle() const { return handle_; }
+  pcap_dumper_t* dumper() const { return dump_; }
+
+private:
+  pcap_t* handle_;
+  pcap_dumper_t* dump_;
+};
+
+
+// Open the offline capture indicated by the path `p`. Throws
+// an exception if the capture cannot be opened.
+inline
+Dump_stream::Dump_stream(char const* file)
+  : handle_(::pcap_open_dead(DLT_EN10MB, 65535)),
+    dump_(::pcap_dump_open(handle_, file))
+{ }
+
+
+inline void
+Dump_stream::dump(Packet& p)
+{
+  ::pcap_dump((u_char*) dump_, p.hdr, p.buf);
+}
+
+
 inline unsigned int
 linktype_len(Link_type t)
 {

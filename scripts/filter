@@ -1,1 +1,5 @@
-../build/drivers/filter-driver ../apps/logging.app ../input/4sics200.pcap $1
+# arg[1] = steve app
+# arg[2] = input pcap
+# arg[3] = output pcap
+# arg[4] = iterations #
+../build/drivers/filter-driver ../apps/logging.app ../input/$1.pcap $2.pcap $3

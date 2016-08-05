@@ -148,6 +148,8 @@ fp_get_flood_port(fp::Dataplane* dp)
 
 // Copies the values within 'n' fields into a byte buffer
 // and constructs a key from it.
+//
+// 255 is an alias for ingress port, 256 is an alias for physical ingress port.
 fp::Key
 fp_gather(fp::Context* cxt, int key_width, int n, va_list args)
 {
@@ -169,7 +171,7 @@ fp_gather(fp::Context* cxt, int key_width, int n, va_list args)
     switch (f) {
       // Looking for "in_port"
       case 255:
-        in_port = cxt->in_port();
+        in_port = cxt->input_port_id();
         p = reinterpret_cast<fp::Byte*>(&in_port);
         // Copy the field into the buffer.
         std::copy(p, p + sizeof(in_port), &buf[j]);
@@ -178,7 +180,7 @@ fp_gather(fp::Context* cxt, int key_width, int n, va_list args)
 
       // Looking for "in_phys_port"
       case 256:
-        in_phy_port = cxt->in_phy_port();
+        in_phy_port = cxt->input_physical_port_id();
         p = reinterpret_cast<fp::Byte*>(&in_phy_port);
         // Copy the field into the buffer.
         std::copy(p, p + sizeof(in_phy_port), &buf[j]);

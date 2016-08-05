@@ -85,9 +85,13 @@ Port::down()
 // Enqueues context in the ports transmit queue.
 void
 Port::send(Context* cxt)
-{
-  // packet_destroy(cxt->packet_);
-}
+{ }
+
+
+void
+Port::send(ff::cap::Packet& p)
+{ }
+
 
 // Gets the port id.
 Port::Id
