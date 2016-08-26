@@ -5,7 +5,6 @@
 #include "action.hpp"
 #include "binding.hpp"
 #include "types.hpp"
-#include "dataplane.hpp"
 
 #include <cstdint>
 #include <utility>
@@ -13,9 +12,10 @@
 namespace fp
 {
 
-struct Table;
-struct Flow;
+class Table;
+class Flow;
 class Port;
+class Dataplane;
 
 
 // Stores information about the ingress of a packet
@@ -108,7 +108,7 @@ class Context
 {
 public:
   // Iniitalize the context with a packet.
-  Context(Packet p, Dataplane* dp)
+  Context(Dataplane* dp, Packet p)
     : input_(), ctrl_(), decode_(), packet_(p), dp_(dp)
   { }
 
@@ -136,9 +136,9 @@ public:
 
   // Returns the input and output ports associated with
   // the context.
-  Port*        output_port()            const { return ctrl_.out_port == 0 ? dp_->get_drop_port() : dp_->get_port(ctrl_.out_port); }
-  Port*        input_port()             const { return dp_->get_port(input_.in_port); }
-  Port*        input_physical_port()    const { return dp_->get_port(input_.in_phy_port); }
+  Port*        output_port()            const;
+  Port*        input_port()             const;
+  Port*        input_physical_port()    const;
   unsigned int output_port_id()         const { return ctrl_.out_port; }
   unsigned int input_port_id()          const { return input_.in_port; }
   unsigned int input_physical_port_id() const { return input_.in_phy_port; }

@@ -92,26 +92,29 @@ main(int argc, char* argv[])
 
   cap::Packet p;
 
-  { // begin
-    Timer t;
-    while(cap.get(p)) {
-      for (int i = 0; i < iterations; ++i) {
-        Byte buf[2048];
-        if (p.captured_size() <= 2048)
-          std::memcpy(&buf[0], p.data(), p.captured_size());
-        else
-          continue;
-        Context cxt(buf, &dp, p1.id(), p1.id(), 0);
-        dp.process(cxt);
+  // Statistics
+  int pktno = 0;
 
-        // Send packet. We'll treat this as a sort of echo server.
-        // The ingress port is set to the dump port we created earliar.
-        // If the application wants to let the packet through, it will set the
-        // egress port = ingress port. Otherwise it will set to drop port.
-        cxt.output_port()->send(p);
-      }
+  Timer t;
+  while(cap.get(p)) {
+    for (int i = 0; i < iterations; ++i) {
+      ++pktno;
+
+      Byte buf[2048];
+      if (p.captured_size() <= 2048)
+        std::memcpy(&buf[0], p.data(), p.captured_size());
+      else
+        continue;
+      Context cxt(buf, &dp, p1.id(), p1.id(), 0);
+      dp.process(cxt);
+
+      // Send packet. We'll treat this as a sort of echo server.
+      // The ingress port is set to the dump port we created earliar.
+      // If the application wants to let the packet through, it will set the
+      // egress port = ingress port. Otherwise it will set to drop port.
+      cxt.output_port()->send(p);
     }
-  } // end anon
+  }
 
-
+  std::cout << "Pps: " << pktno / t.elapsed() << '\n';
 }

@@ -1,7 +1,6 @@
 #ifndef FP_PACKET_HPP
 #define FP_PACKET_HPP
 
-#include "buffer.hpp"
 #include "types.hpp"
 
 #include <algorithm>

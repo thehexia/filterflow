@@ -1,4 +1,5 @@
 #include "context.hpp"
+#include "dataplane.hpp"
 
 namespace fp
 {
@@ -14,6 +15,27 @@ Metadata const&
 Context::read_metadata()
 {
   return this->metadata_;
+}
+
+
+Port*
+Context::output_port() const
+{
+  return ctrl_.out_port == 0 ? dp_->get_drop_port() : dp_->get_port(ctrl_.out_port);
+}
+
+
+Port*
+Context::input_port() const
+{
+  return dp_->get_port(input_.in_port);
+}
+
+
+Port*
+Context::input_physical_port() const
+{
+  return dp_->get_port(input_.in_phy_port);
 }
 
 

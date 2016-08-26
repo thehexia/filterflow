@@ -1,26 +1,20 @@
 #include "buffer.hpp"
 
+
 namespace fp
 {
 
-
-namespace Buffer
+namespace Buffer_pool
 {
 
-// Ctor for the base packet buffer.
-Base::Base(unsigned char* data)
+Pool& 
+get_pool(Dataplane* dp)
 {
-  data_ = data;
+  static Pool p(1024 * 256 + 1024, dp);
+  return p;
 }
 
 
-// Virtual Dtor for base packet buffer.
-Base::~Base()
-{
-  if (data_)
-    delete[] data_;
-}
+} // namespace Buffer_pol
 
-} // end namespace buffer
-
-} // end namespace fp
+} // namespace fp
