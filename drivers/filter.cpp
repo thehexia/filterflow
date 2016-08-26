@@ -40,8 +40,10 @@ private:
 void
 Port_dump::send(Context* cxt)
 {
-  pcap_pkthdr hdr {cxt->size(), cxt->size()};
+  assert(cxt->packet().data());
+  pcap_pkthdr hdr {{0,0}, cxt->size(), cxt->size()};
   cap::Packet p;
+
   p.hdr = &hdr;
   p.buf = cxt->packet().data();
   dump_.dump(p);
@@ -116,7 +118,9 @@ main(int argc, char* argv[])
         std::memcpy(&buf[0], p.data(), p.captured_size());
       else
         continue;
-      Context cxt(buf, &dp, p1.id(), p1.id(), 0);
+
+      fp::Packet pkt(buf, p.captured_size());
+      Context cxt(pkt, &dp, p1.id(), p1.id(), 0);
       dp.process(cxt);
 
       // Send packet. We'll treat this as a sort of echo server.
