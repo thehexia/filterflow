@@ -3,6 +3,7 @@
 #include "util/application.hpp"
 #include "util/timer.hpp"
 #include "util/system.hpp"
+#include "util/buffer.hpp"
 #include "freeflow/capture.hpp"
 
 #include <cstring>
@@ -38,7 +39,13 @@ private:
 
 void
 Port_dump::send(Context* cxt)
-{ }
+{
+  pcap_pkthdr hdr {cxt->size(), cxt->size()};
+  cap::Packet p;
+  p.hdr = &hdr;
+  p.buf = cxt->packet().data();
+  dump_.dump(p);
+}
 
 
 void
@@ -74,6 +81,10 @@ main(int argc, char* argv[])
 
   // Dataplane stuff.
   Dataplane dp("dp1", steve_file);
+  Pool& pool = Buffer_pool::get_pool(&dp);
+  dp.set_pool(&pool);
+
+  // Port stuff.
   Port_dump p1(1, dump_file, "p1");
 
   std::cout << "Loading: " << pcap_file << '\n';

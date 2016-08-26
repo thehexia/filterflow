@@ -12,9 +12,10 @@ namespace fp {
 
 // Data plane ctor.
 Dataplane::Dataplane(std::string const& name, std::string const& app_name)
-  : name_(name), app_(Application(app_name.c_str())), ports_(),  portmap_()
+  : name_(name), app_(Application(app_name.c_str())), ports_(),  portmap_(), buf_pool_(nullptr)
 {
 }
+
 
 Dataplane::~Dataplane()
 {
@@ -140,6 +141,14 @@ Dataplane::configure()
 }
 
 
+// Set the buffer pool for this dataplane.
+void
+Dataplane::set_pool(Pool* p)
+{
+  buf_pool_ = p;
+}
+
+
 // Gets the data plane name.
 std::string
 Dataplane::name() const
@@ -169,6 +178,13 @@ Table*
 Dataplane::table(int idx)
 {
   return tables_.at(idx);
+}
+
+
+Pool*
+Dataplane::buf_pool() const
+{
+  return buf_pool_;
 }
 
 

@@ -8,6 +8,7 @@
 #include <functional>
 #include <mutex>
 #include <vector>
+#include <cstring>
 
 namespace fp
 {
@@ -62,6 +63,9 @@ public:
   // Returns the next free index from the min-heap.
   inline Buffer& alloc();
 
+  // Returns copy of a context into the next free buffer in the min-heap.
+  inline Buffer& copy(Context&);
+
   // Places the given index back into the min-heap.
   inline void dealloc(int);
 
@@ -74,29 +78,6 @@ private:
   Mutex_type mutex_;
 };
 
-
-
-// Buffer pool default ctor.
-Pool::Pool(Dataplane* dp)
-  : Pool(4096, dp)
-{ }
-
-
-// Buffer pool sized ctor. Intializes the free-list (min-heap)
-// and the pool of buffers.
-Pool::Pool(int size, Dataplane* dp)
-  : data_(), heap_(), mutex_()
-{
-  for (int i = 0; i < size; i++) {
-    heap_.push(i);
-    data_.push_back(Buffer(i, dp));
-  }
-}
-
-
-// Buffer pool dtor.
-Pool::~Pool()
-{ }
 
 
 // Returns a reference to the buffer at the given index.
@@ -127,6 +108,35 @@ Pool::alloc()
   // Return a reference to the buffer at the index.
   return data_[id];
 }
+
+
+inline Buffer&
+Pool::copy(Context& cxt)
+{
+  //while (heap_.empty()) { }
+  // Lock the heap.
+  mutex_.lock();
+
+  // Get the next available index.
+  int id(heap_.top());
+
+  // Remove index from the heap.
+  heap_.pop();
+
+  // Unlock the heap.
+  mutex_.unlock();
+
+  // Return a reference to the buffer at the index.
+  Buffer& buf = data_[id];
+  buf.context() = cxt; // Trivial copy on every field.
+  buf.context().packet().buf_ = buf.data_; // Reset the data pointer to the new buffer.
+  // Deep copy.
+  std::copy(cxt.packet().data(), cxt.packet().data() + cxt.packet().size(),
+            buf.context().packet().data());
+
+  return buf;
+}
+
 
 
 // Places the given index back into the min-heap.

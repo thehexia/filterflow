@@ -2,11 +2,14 @@
 #include <unordered_map>
 #include <cstdarg>
 
+
 #include "system.hpp"
 #include "application.hpp"
 #include "endian.hpp"
 #include "context.hpp"
+#include "buffer.hpp"
 #include "dataplane.hpp"
+
 
 //////////////////////////////////////////////////////////////////////////
 //                    External Runtime System Calls                     //
@@ -49,7 +52,10 @@ fp_flood(fp::Context* cxt)
 void
 fp_output_port(fp::Context* cxt, fp::Port::Id id)
 {
-  cxt->set_output_port(id);
+  // Allocate a copy.
+  fp::Buffer& buf = cxt->dataplane()->buf_pool()->copy(*cxt);
+  cxt->dataplane()->get_port(id)->send(&buf.context());
+  cxt->dataplane()->buf_pool()->dealloc(buf.id());
 }
 
 

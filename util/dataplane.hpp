@@ -9,12 +9,14 @@
 
 #include "port.hpp"
 #include "application.hpp"
+
 // #include "thread.hpp"
 
 namespace fp
 {
 
 struct Table;
+struct Pool;
 
 struct Dataplane
 {
@@ -53,12 +55,14 @@ struct Dataplane
   void down();
   void configure();
   void process(Context&);
+  void set_pool(Pool*);
 
   // Accessors.
   Application const&  app() const;
   std::string         name() const;
   std::vector<Table*> tables() const;
   Table*              table(int);
+  Pool*               buf_pool() const;
 
   Port_list ports_;
   Port_map  portmap_;
@@ -66,6 +70,7 @@ struct Dataplane
   Port*     all_;
   Port*     flood_;
   Port*     reflow_;
+  Pool*     buf_pool_;
 
   std::uint64_t throughput = 0;
   std::uint64_t throughput_bytes = 0;
