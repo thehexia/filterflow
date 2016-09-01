@@ -6,6 +6,17 @@
 namespace fp
 {
 
+// Sets the input port, physical input port, and tunnel id.
+void
+Context::set_input(Port* in, Port* in_phys, int tunnel)
+{
+  input_ = {
+    in->id(),
+    in_phys->id(),
+    tunnel
+  };
+}
+
 void
 Context::write_metadata(uint64_t meta)
 {

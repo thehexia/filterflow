@@ -11,52 +11,6 @@
 using namespace fp;
 using namespace ff;
 
-
-class Port_dump : public Port
-{
-public:
-  // Constructors/Destructor.
-  using Port::Port;
-
-  Port_dump(Port::Id id, char const* dfile, std::string const& name = "")
-    : Port::Port(id, name), dump_(dfile)
-  { }
-
-  ~Port_dump() { }
-
-  int       open() { return 0; }
-  Context*  recv() { return nullptr; }
-  int       send() { return 0; }
-  void      send(Context*);
-  void      send(cap::Packet&);
-  void      close() { }
-  Function  work_fn() { return nullptr; }
-
-private:
-  cap::Dump_stream dump_;
-};
-
-
-void
-Port_dump::send(Context* cxt)
-{
-  assert(cxt->packet().data());
-  pcap_pkthdr hdr {{0,0}, cxt->size(), cxt->size()};
-  cap::Packet p;
-
-  p.hdr = &hdr;
-  p.buf = cxt->packet().data();
-  dump_.dump(p);
-}
-
-
-void
-Port_dump::send(cap::Packet& p)
-{
-  dump_.dump(p);
-}
-
-
 int
 main(int argc, char* argv[])
 {
@@ -87,7 +41,8 @@ main(int argc, char* argv[])
   dp.set_pool(&pool);
 
   // Port stuff.
-  Port_dump p1(1, dump_file, "p1");
+  Port_pcap in(1, pcap_file, Port_pcap::Mode::READ_OFFLINE, "read1");
+  Port_pcap out(2, dump_file, Port_pcap::Mode::WRITE_OFFLINE, "dump1");
 
   std::cout << "Loading: " << pcap_file << '\n';
   // Open an offline stream capture.
@@ -122,12 +77,12 @@ main(int argc, char* argv[])
       fp::Packet pkt(buf, p.captured_size());
       Context cxt(pkt, &dp, p1.id(), p1.id(), 0);
       dp.process(cxt);
-
+      cxt.apply_actions();
       // Send packet. We'll treat this as a sort of echo server.
       // The ingress port is set to the dump port we created earliar.
       // If the application wants to let the packet through, it will set the
       // egress port = ingress port. Otherwise it will set to drop port.
-      cxt.output_port()->send(p);
+      // cxt.output_port()->send(p);
     }
   }
 

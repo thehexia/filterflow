@@ -54,7 +54,7 @@ fp_output_port(fp::Context* cxt, fp::Port::Id id)
 {
   // Allocate a copy.
   fp::Buffer& buf = cxt->dataplane()->buf_pool()->copy(*cxt);
-  cxt->dataplane()->get_port(id)->send(&buf.context());
+  cxt->dataplane()->get_port(id)->send(buf.context());
   cxt->dataplane()->buf_pool()->dealloc(buf.id());
 }
 
@@ -112,7 +112,7 @@ fp_port_id_is_up(fp::Dataplane* dp, fp::Port::Id id)
 {
   assert(dp);
   fp::Port* p = dp->get_port(id);
-  return !p->config_.down;
+  return !p->is_down();
 }
 
 // Returns whether or not the given id exists.
@@ -121,7 +121,7 @@ fp_port_id_is_down(fp::Dataplane* dp, fp::Port::Id id)
 {
   assert(dp);
   fp::Port* p = dp->get_port(id);
-  return p->config_.down;
+  return p->is_down();
 }
 
 // Returns the port id to the all port;

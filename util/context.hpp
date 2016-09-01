@@ -116,6 +116,9 @@ public:
     : input_{in, in_phy, tunnelid}, ctrl_(), decode_(), packet_(p), dp_(dp)
   { }
 
+  // Sets the input port, physical input port, and tunnel id.
+  void set_input(Port*, Port*, int);
+
   // Returns the packet owned by the context.
   Packet const& packet() const { return packet_; }
   Packet&       packet()       { return packet_; }

@@ -1,9 +1,11 @@
 #include "port.hpp"
+#include "context.hpp"
 
 #include <climits>
 #include <netinet/in.h>
 #include <cassert>
 #include <iostream>
+#include <cstring>
 
 namespace fp
 {
@@ -13,92 +15,143 @@ namespace fp
 
 
 // Port constructor that sets ID.
-Port::Port(Port::Id id, Port::Label name)
-  : id_(id), addr_(nullptr), name_(name), config_()
+Port::Port(Port::Id id, std::string const& name)
+  : id_(id), name_(name), stats_(), config_(), state_()
 { }
 
 
 // Port dtor.
 Port::~Port()
-{
-	if (addr_)
-		delete addr_;
-}
+{ }
 
 
 // Comparators.
 //
 bool
-Port::operator==(Port& other)
+operator==(Port const& lhs, Port const& rhs)
 {
-  return this->id_ == other.id_;
-}
-
-
-bool
-Port::operator==(Port* other)
-{
-  return this->id_ == other->id_;
+  return lhs.id() == rhs.id();
 }
 
 
 bool
 operator==(Port* p, std::string const& name)
 {
-  return p->name_ == name;
+  return p->name() == name;
 }
 
 
 bool
-Port::operator!=(Port& other)
+operator!=(Port const& lhs, Port const& rhs)
 {
-  return !(*this == other);
+  return !(lhs.id() == rhs.id());
+}
+
+
+//----------------------------------------------------------------------------//
+// Pcap port
+//----------------------------------------------------------------------------//
+
+
+Port_pcap::Port_pcap(Port::Id id, char const* pfile, Mode mode, std::string const& name = "")
+  : Port::Port(id, name), pfile_(pfile), mode_(mode)
+{
+  switch (mode) {
+    case Mode::READ_OFFLINE:
+      stream_.read_ = new Stream(ff::cap::offline(pfile));
+      break;
+
+    case Mode::WRITE_OFFLINE:
+      stream_.dump_ = new Dump_stream(pfile);
+      break;
+
+    case Mode::READ_LIVE:
+    case Mode::WRITE_LIVE:
+      break;
+  }
+}
+
+
+Port_pcap::~Port_pcap() { }
+
+
+bool
+Port_pcap::send(Context& cxt)
+{
+  switch (this->mode()) {
+    case Mode::WRITE_OFFLINE:
+      return send_offline(cxt);
+    case Mode::WRITE_LIVE:
+      return false;
+
+    default: return false;
+  }
+
+  // Otherwise this isn't a sending port.
+  return false;
 }
 
 
 bool
-Port::operator!=(Port* other)
+Port_pcap::recv(Context& cxt)
 {
-  return !(this == other);
+  switch (this->mode()) {
+    case Mode::READ_OFFLINE:
+      return recv_offline(cxt);
+    case Mode::READ_LIVE:
+      return false;
+
+    default: return false;
+  }
+
+  // Otherwise this isn't a receiving port.
+  return false;
 }
 
 
-// Changes the port configuration to 'up'; that is, there are
-// no flags set that would indicate the port is not able to
-// function.
-void
-Port::up()
+bool
+Port_pcap::send_offline(Context& cxt)
 {
-  // Clear the bitfield (uint8_t).
-  *(uint8_t*)(&config_) = 0;
+  return true;
 }
 
 
-// Change the port to a 'down' configuration.
-void
-Port::down()
+bool
+Port_pcap::recv_offline(Context& cxt)
 {
-  config_.down = 1;
+  assert(this->mode() == Mode::READ_OFFLINE);
+  static short recv_mtu = 2048; // Current max buffer size on contexts.
+
+  ff::cap::Packet p;
+  stream_.read_->get(p);
+  if (p.captured_size() > recv_mtu)
+    return false;
+
+  cxt.set_input(this, this, 0);
+  std::memcpy(&cxt.packet().data()[0], p.data(), p.captured_size());
+  return true;
 }
 
 
-// Enqueues context in the ports transmit queue.
-void
-Port::send(Context* cxt)
-{ }
-
-
-void
-Port::send(ff::cap::Packet& p)
-{ }
-
-
-// Gets the port id.
-Port::Id
-Port::id() const
-{
-  return id_;
-}
+// void
+// Port_pcap::send(Context* cxt)
+// {
+//   assert(cxt->packet().data());
+//   pcap_pkthdr hdr {{0,0}, cxt->size(), cxt->size()};
+//   cap::Packet p;
+//
+//   p.hdr = &hdr;
+//   p.buf = cxt->packet().data();
+//   dump_.dump(p);
+// }
+//
+//
+// void
+// Port_pcap::send(cap::Packet& p)
+// {
+//   dump_.dump(p);
+// }
+//
 
 
 } // end namespace FP
