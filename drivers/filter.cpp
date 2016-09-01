@@ -53,7 +53,8 @@ main(int argc, char* argv[])
   }
 
   // Add all ports
-  dp.add_port(&p1);
+  dp.add_port(&in);
+  dp.add_port(&out);
   dp.add_reserved_ports();
   dp.configure();
   dp.up();
@@ -75,7 +76,7 @@ main(int argc, char* argv[])
         continue;
 
       fp::Packet pkt(buf, p.captured_size());
-      Context cxt(pkt, &dp, p1.id(), p1.id(), 0);
+      Context cxt(pkt, &dp, in.id(), in.id(), 0);
       dp.process(cxt);
       cxt.apply_actions();
       // Send packet. We'll treat this as a sort of echo server.

@@ -112,6 +112,17 @@ Port_pcap::recv(Context& cxt)
 bool
 Port_pcap::send_offline(Context& cxt)
 {
+  assert(this->mode() == Mode::WRITE_OFFLINE);
+
+  assert(cxt.packet().data());
+  // TODO: Handle the pcap header better.
+  pcap_pkthdr hdr {{0,0}, cxt.size(), cxt.size()};
+  ff::cap::Packet p;
+
+  p.hdr = &hdr;
+  p.buf = cxt.packet().data();
+  stream_.dump_->dump(p);
+
   return true;
 }
 
