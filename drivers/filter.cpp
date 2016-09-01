@@ -59,33 +59,31 @@ main(int argc, char* argv[])
   dp.configure();
   dp.up();
 
-  cap::Packet p;
-
   // Statistics
   int pktno = 0;
 
   Timer t;
-  while(cap.get(p)) {
-    for (int i = 0; i < iterations; ++i) {
-      ++pktno;
-
-      Byte buf[2048];
-      if (p.captured_size() <= 2048)
-        std::memcpy(&buf[0], p.data(), p.captured_size());
-      else
-        continue;
-
-      fp::Packet pkt(buf, p.captured_size());
-      Context cxt(pkt, &dp, in.id(), in.id(), 0);
-      dp.process(cxt);
-      cxt.apply_actions();
-      // Send packet. We'll treat this as a sort of echo server.
-      // The ingress port is set to the dump port we created earliar.
-      // If the application wants to let the packet through, it will set the
-      // egress port = ingress port. Otherwise it will set to drop port.
-      // cxt.output_port()->send(p);
-    }
-  }
+  // while(cap.get(p)) {
+  //   for (int i = 0; i < iterations; ++i) {
+  //     ++pktno;
+  //
+  //     Byte buf[2048];
+  //     if (p.captured_size() <= 2048)
+  //       std::memcpy(&buf[0], p.data(), p.captured_size());
+  //     else
+  //       continue;
+  //
+  //     fp::Packet pkt(buf, p.captured_size());
+  //     Context cxt(pkt, &dp, in.id(), in.id(), 0);
+  //     dp.process(cxt);
+  //     cxt.apply_actions();
+  //     // Send packet. We'll treat this as a sort of echo server.
+  //     // The ingress port is set to the dump port we created earliar.
+  //     // If the application wants to let the packet through, it will set the
+  //     // egress port = ingress port. Otherwise it will set to drop port.
+  //     // cxt.output_port()->send(p);
+  //   }
+  // }
 
   std::cout << "Pps: " << pktno / t.elapsed() << '\n';
 }

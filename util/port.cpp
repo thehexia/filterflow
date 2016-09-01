@@ -134,13 +134,16 @@ Port_pcap::recv_offline(Context& cxt)
   static short recv_mtu = 2048; // Current max buffer size on contexts.
 
   ff::cap::Packet p;
-  stream_.read_->get(p);
-  if (p.captured_size() > recv_mtu)
-    return false;
+  if (stream_.read_->get(p)) {
+    if (p.captured_size() > recv_mtu)
+      return false;
 
-  cxt.set_input(this, this, 0);
-  std::memcpy(&cxt.packet().data()[0], p.data(), p.captured_size());
-  return true;
+    cxt.set_input(this, this, 0);
+    std::memcpy(&cxt.packet().data()[0], p.data(), p.captured_size());
+    return true;
+  }
+
+  return false;
 }
 
 

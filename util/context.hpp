@@ -36,7 +36,7 @@ struct Ingress_info
 // FIXME: Am I actually using the table and flow?
 struct Control_info
 {
-  unsigned int out_port; // The selected output port.
+  unsigned int out_port = 0; // The selected output port.
   Table* table;
   Flow*  flow;
 };
