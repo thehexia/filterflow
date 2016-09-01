@@ -72,7 +72,22 @@ Port_pcap::Port_pcap(Port::Id id, char const* pfile, Mode mode, std::string cons
 }
 
 
-Port_pcap::~Port_pcap() { }
+Port_pcap::~Port_pcap()
+{
+  switch (this->mode()) {
+    case Mode::READ_OFFLINE:
+      delete stream_.read_;
+      break;
+
+    case Mode::WRITE_OFFLINE:
+      delete stream_.dump_;
+      break;
+
+    case Mode::READ_LIVE:
+    case Mode::WRITE_LIVE:
+      break;
+  }
+}
 
 
 bool
@@ -136,9 +151,10 @@ Port_pcap::recv_offline(Context& cxt)
   ff::cap::Packet p;
   if (stream_.read_->get(p)) {
     if (p.captured_size() > recv_mtu)
-      return false;
+      throw std::runtime_error("Packet over MTU");
 
     cxt.set_input(this, this, 0);
+    cxt.packet().size_ = p.captured_size();
     std::memcpy(&cxt.packet().data()[0], p.data(), p.captured_size());
     return true;
   }
