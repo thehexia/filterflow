@@ -34,7 +34,7 @@ Context::read_metadata()
 Port*
 Context::output_port() const
 {
-  return ctrl_.out_port == 0 ? dp_->get_drop_port() : dp_->get_port(ctrl_.out_port);
+  return ctrl_.out_port == 0 ? nullptr : dp_->get_port(ctrl_.out_port);
 }
 
 

@@ -124,6 +124,7 @@ fp_port_id_is_down(fp::Dataplane* dp, fp::Port::Id id)
   return p->is_down();
 }
 
+
 // Returns the port id to the all port;
 fp::Port::Id
 fp_get_all_port(fp::Dataplane* dp)

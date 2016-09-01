@@ -63,6 +63,27 @@ main(int argc, char* argv[])
   int pktno = 0;
 
   Timer t;
+  while (true) {
+    Byte buf[2048];
+    Context cxt(&dp, buf);
+    if (in.recv(cxt)) {
+      dp.process(cxt);
+      cxt.apply_actions();
+
+      if (cxt.output_port()) {
+        cxt.output_port()->send(cxt);
+      }
+      // If the packet's egress port was not set by the application, then
+      // behaviour is user defined.
+      //
+      // For our filter, we'll choose to output the packet to the pcap dump file
+      // if the application does not explicitly drop the packet.
+      else {
+        out.send(cxt);
+      }
+    }
+    else break;
+  }
   // while(cap.get(p)) {
   //   for (int i = 0; i < iterations; ++i) {
   //     ++pktno;
